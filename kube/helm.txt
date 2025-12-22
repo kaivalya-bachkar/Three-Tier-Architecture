@@ -1,0 +1,23 @@
+sudo apt install snapd
+sudo snap install helm --classic
+aws iam get-role --role-name three-tier-eks-alb-controller --query "Role.Arn" --output text
+helm repo add eks https://aws.github.io/eks-charts
+helm repo update
+
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
+  -n kube-system \
+  --set clusterName=three-tier-eks \
+  --set serviceAccount.create=true \
+  --set serviceAccount.name=aws-load-balancer-controller \
+  --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=arn:aws:iam::467392263493:role/three-tier-eks-alb-controller
+  --set region=<your-region> \
+  --set vpcId=<your-vpc-id>
+
+kubectl get pods -n kube-system -l app.kubernetes.io/name=aws-load-balancer-controller
+kubectl get endpoints -n kube-system aws-load-balancer-webhook-service
+
+helm uninstall aws-load-balancer-controller -n kube-system
+# Check if the deployment is gone (it should return "No resources found")
+kubectl get deployment aws-load-balancer-controller -n kube-system
+kubectl get svc aws-load-balancer-webhook-service -n kube-system
+kubectl get sa aws-load-balancer-controller -n kube-system

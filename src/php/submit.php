@@ -11,10 +11,10 @@ echo $gender;
 echo $comment;
 echo $website;
  
-$servername = "mysql-db";
-$username = "root";
-$password = "Pass@123";
-$dbname = "mydatabase";
+$servername = getenv('DB_HOST'); 
+$username = getenv('DB_USER');   
+$password = getenv('DB_PASSWORD'); 
+$dbname = getenv('DB_NAME');
  
 // Create connection
 $conn = mysqli_connect($servername, $username, $password, $dbname);

@@ -1,0 +1,38 @@
+apt-get update -y
+sudo apt install mysql-server -y
+systemctl start mysql
+systemctl enable mysql
+mysql -u root -p
+
+-- 1. Create the database
+CREATE DATABASE IF NOT EXISTS `mydatabase`;
+
+-- 2. Use the database
+USE `mydatabase`;
+
+-- 3. Create the 'users' table
+CREATE TABLE users (
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100),
+    email VARCHAR(100),
+    website VARCHAR(100),
+    comment VARCHAR(100),
+    gender VARCHAR(50)
+);
+
+-- 4. Create a dedicated application user (HIGHLY recommended)
+-- This user is safer than using 'root' and matches the credentials in your EKS Secret.
+-- Replace 'DB_USER' and 'Pass@123' with your actual values.
+CREATE USER 'kaivalya'@'%' IDENTIFIED BY 'Pass@123';
+
+-- 5. Grant necessary permissions to the application user
+GRANT ALL PRIVILEGES ON `mydatabase`.* TO 'kaivalya'@'%';
+FLUSH PRIVILEGES;
+
+-- 6. Exit the MySQL shell
+EXIT;
+
+Verify that MySQL is configured to listen on all interfaces, not just localhost.
+Log into MySQL and check the bind-address in the configuration file 
+(/etc/mysql/mysql.conf.d/mysqld.cnf). It should be commented out or set to 0.0.0.0.
+If you change it, you must restart MySQL: sudo systemctl restart mysql.
